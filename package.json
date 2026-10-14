@@ -1,0 +1,130 @@
+{
+  "name": "speculate-tools",
+  "version": "1.0.0-rc.1",
+  "description": "Speculative tool execution for AI agents: predict the next tool call while the model thinks, pre-run only safe (read-only) tools, serve the result on an exact match. Lossless by construction.",
+  "keywords": [
+    "agents",
+    "llm",
+    "tool-use",
+    "speculative-execution",
+    "mcp",
+    "model-context-protocol",
+    "anthropic",
+    "claude",
+    "latency",
+    "ai-agents"
+  ],
+  "author": "Dev Patel",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevPatel3547/speculate-tools.git"
+  },
+  "homepage": "https://github.com/DevPatel3547/speculate-tools#readme",
+  "bugs": {
+    "url": "https://github.com/DevPatel3547/speculate-tools/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./mcp": {
+      "import": {
+        "types": "./dist/mcp.d.ts",
+        "default": "./dist/mcp.js"
+      },
+      "require": {
+        "types": "./dist/mcp.d.cts",
+        "default": "./dist/mcp.cjs"
+      }
+    },
+    "./eval": {
+      "import": {
+        "types": "./dist/eval.d.ts",
+        "default": "./dist/eval.js"
+      },
+      "require": {
+        "types": "./dist/eval.d.cts",
+        "default": "./dist/eval.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "mcp": [
+        "./dist/mcp.d.ts"
+      ],
+      "eval": [
+        "./dist/eval.d.ts"
+      ]
+    }
+  },
+  "bin": {
+    "speculate-tools": "dist/cli/bin.js",
+    "speculate-mcp": "dist/cli/speculate-mcp.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "docs"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "build": "npm run clean && tsup",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc -p tsconfig.check.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:dist": "node --test test-dist/smoke.test.mjs test-dist/smoke.test.cjs",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run build && npm run test:dist",
+    "bench": "tsx bench/run.ts",
+    "bench:realtime": "tsx bench/run.ts --realtime",
+    "eval:traces": "tsx src/cli/bin.ts eval-traces",
+    "mcp-proxy": "tsx src/cli/bin.ts mcp-proxy",
+    "demo:mcp": "tsx examples/try-proxy.ts",
+    "examples": "tsx examples/run-all.ts",
+    "prepack": "npm run clean && npm run build",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.3",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3",
+    "zod": "^4.6.6"
+  }
+}

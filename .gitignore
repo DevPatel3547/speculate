@@ -1,0 +1,43 @@
+# dependencies and build output
+node_modules/
+dist/
+*.tgz
+
+# test / coverage output
+coverage/
+.nyc_output/
+*.lcov
+
+# caches
+.cache/
+.npm/
+.eslintcache
+.prettiercache
+.vitest/
+.tsbuildinfo
+*.tsbuildinfo
+.turbo/
+
+# logs and local env
+*.log
+npm-debug.log*
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Large data: the real-trace dataset is NOT committed (see docs/benchmarks/README.md to rebuild it).
+# Keep every committed file under 5 MB. The small synthetic example in examples/traces/ stays tracked.
+/data/
+*.jsonl.gz
+*.parquet
+*.arrow
+trajectories*.jsonl
+tool_classes.json
+stats.json
+report*.json

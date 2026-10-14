@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint, typecheck, test + coverage, build, pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test:coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+      - run: npm run build
+      - name: npm pack (dry run must be clean)
+        run: npm pack --dry-run
+      - run: npm pack
+      - run: npm run examples
+      - run: npm run bench -- --tasks 50 --train 100
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package
+          path: "*.tgz"
+
+  runtime:
+    # The published package supports Node 18.18+. The dev toolchain (vitest) needs Node 22,
+    # so older Node versions run the dist smoke tests (ESM + CJS entry points, CLI, real-stdio MCP proxy)
+    # against the package built in the `check` job.
+    name: dist smoke tests (node ${{ matrix.node }})
+    needs: check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --version
+      - run: npm run test:dist
+
+  docker:
+    name: docker image (mcp proxy)
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t speculate-tools:ci .
+      - run: docker run --rm speculate-tools:ci --help

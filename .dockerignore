@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+.git
+*.tgz
+bench
+test
+test-dist
+examples

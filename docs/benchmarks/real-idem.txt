@@ -1,0 +1,54 @@
+speculate-tools trace replay — n-gram predictor
+trajectories: 8754 (train 6111, test 2643; split by id hash, seed "speculate", test fraction 0.3)
+steps: train 231871, test 99071; speculable test steps 67308 (67.9%)
+policy: allow read_only+idempotent; classes: per-step cls when present; online learning on; not scored: think
+
+hit rate over speculable test steps (exact tool + args match):
+  top-1            5.8%  (3924/67308)
+  top-3            7.2%  (4856/67308)
+  tool name only  46.8%  (top-1)
+
+  unsafe matches  11 (predicted calls a name-only classifier would launch, but whose own class is not speculable)
+
+per source (test trajectories):
+  source                                     trajs  spec.steps   top-1   top-3  est.saved
+  nebius/SWE-rebench-openhands-trajectories    903       43910    5.1%    6.4%       0.4%
+  nebius/SWE-agent-trajectories                925       13311   10.2%   12.8%       0.5%
+  SWE-bench/SWE-smith-trajectories             584        7458    3.1%    3.3%       0.2%
+  SWE-Gym/OpenHands-SFT-Trajectories           149        1961    1.3%    1.6%       0.1%
+  all-hands/openhands-feedback                  82         668    6.7%    9.4%       0.3%
+
+per tool (test steps, top 25 of 298 tools; --json for all):
+  tool                class            steps  spec.   top-1   top-3
+  editor.view         read_only        19006  19006    0.8%    1.1%
+  sh:python           idempotent       15336  15299   10.4%   11.4%
+  sh:grep             read_only         7712   7709    0.0%    0.0%
+  editor.str_replace  side_effecting    7586      0       -       -  (not speculated)
+  edit                side_effecting    7283      0       -       -  (not speculated)
+  editor.create       side_effecting    6697      0       -       -  (not speculated)
+  sh:pytest           idempotent        6401   6399    0.2%    1.1%
+  sh:python.-c        idempotent        3129   3123    0.1%    0.3%
+  think               read_only         2416      0       -       -  (not speculated)
+  open                read_only         2373   2373    2.4%    4.7%
+  sh:find             read_only         2156   2153    0.0%    0.0%
+  sh:ls               read_only         1890   1890    7.9%   13.9%
+  finish              side_effecting    1877      0       -       -  (not speculated)
+  search_dir          read_only         1566   1566   21.7%   23.7%
+  sh:rm               side_effecting    1442      0       -       -  (not speculated)
+  search_file         read_only          918    918    9.5%   16.7%
+  find_file           read_only          866    866    0.2%    1.5%
+  create              side_effecting     857      0       -       -  (not speculated)
+  goto                read_only          847    847    6.0%    6.8%
+  submit              side_effecting     634      0       -       -  (not speculated)
+  scroll_down         read_only          616    616   55.5%   57.1%
+  sh:pip.install      idempotent         569    563   34.6%   35.3%
+  sh:git.diff         read_only          448    448   22.1%   31.9%
+  task_tracker.plan   idempotent         423    423   27.4%   52.2%
+  sh:git.log          read_only          359    359    2.5%    6.1%
+
+ESTIMATED latency saved (top-3 launched per step; upper bound, see docs/trace-format.md):
+  baseline 579218.5 s -> saved 2282.3 s (0.4%)
+  ceiling (perfect predictor, same policy): 34311.3 s (5.9%)
+  hits: 4853 finished within the think window, 3 joined while running
+  wasted speculative executions: 268148 (~138179.0 s of tool time)
+  timing: think_ms measured on 1.7% of steps, tool_ms on 1.6%; assumed think 5300 ms, tool 450 ms (or train median per tool), predictor 0 ms

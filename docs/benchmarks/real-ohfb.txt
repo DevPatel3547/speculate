@@ -1,0 +1,47 @@
+speculate-tools trace replay — n-gram predictor
+trajectories: 8754 (train 8614, test 140; split by id hash, seed "speculate", test fraction 0.5)
+steps: train 327997, test 2945; speculable test steps 683 (23.2%)
+policy: allow read_only; classes: per-step cls when present; online learning on; test set drawn only from ids ohfb-; not scored: think
+
+hit rate over speculable test steps (exact tool + args match):
+  top-1           11.9%  (81/683)
+  top-3           13.2%  (90/683)
+  tool name only  31.5%  (top-1)
+
+  unsafe matches  1 (predicted calls a name-only classifier would launch, but whose own class is not speculable)
+
+per tool (test steps, top 25 of 121 tools; --json for all):
+  tool                      class            steps  spec.   top-1   top-3
+  ipy:edit_file_by_replace  side_effecting     279      0       -       -  (not speculated)
+  browse_interactive        side_effecting*    276      0       -       -  (not speculated)
+  ipy:edit_file             side_effecting     176      0       -       -  (not speculated)
+  editor.str_replace        side_effecting     171      0       -       -  (not speculated)
+  finish                    side_effecting     150      0       -       -  (not speculated)
+  sh:python                 idempotent         145      0       -       -  (not speculated)
+  editor.view               read_only          125    125    0.0%    0.0%
+  ipy:code                  side_effecting     125      0       -       -  (not speculated)
+  ipy:open_file             read_only          120    120    2.5%    2.5%
+  ipy:create_file           side_effecting      91      0       -       -  (not speculated)
+  sh:find                   read_only           81     81    0.0%    0.0%
+  sh:ls                     read_only           76     76    2.6%    6.6%
+  sh:cat                    read_only           73     57    8.8%    8.8%
+  sh:git.add                idempotent          62      0       -       -  (not speculated)
+  sh:curl                   idempotent*         55      0       -       -  (not speculated)
+  sh:npm.run                idempotent          44      0       -       -  (not speculated)
+  sh:ps                     read_only           44     44   86.4%   88.6%
+  delegate                  side_effecting      42      0       -       -  (not speculated)
+  sh:npm.install            idempotent          36      0       -       -  (not speculated)
+  ipy:search_file           read_only           30     30   16.7%   23.3%
+  sh:grep                   read_only           30     30    0.0%    0.0%
+  editor.create             side_effecting      29      0       -       -  (not speculated)
+  sh:git.checkout           side_effecting      29      0       -       -  (not speculated)
+  sh:git.push               side_effecting      29      0       -       -  (not speculated)
+  ipy:append_file           side_effecting      27      0       -       -  (not speculated)
+  (* = open-world: not speculated unless --allow-open-world)
+
+ESTIMATED latency saved (top-3 launched per step; upper bound, see docs/trace-format.md):
+  baseline 35064.8 s -> saved 32.3 s (0.1%)
+  ceiling (perfect predictor, same policy): 265.7 s (0.8%)
+  hits: 90 finished within the think window, 0 joined while running
+  wasted speculative executions: 3320 (~1211.6 s of tool time)
+  timing: think_ms measured on 98.6% of steps, tool_ms on 92.2%; assumed think 5300 ms, tool 450 ms (or train median per tool), predictor 0 ms
